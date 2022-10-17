@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+  mysql:
+    image: mysql
+    platform: linux/x86_64
+    ports:
+      - '3306:3306'
+    volumes:
+      - ~/apps/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pass
+      - MYSQL_DATABASE=faceit
