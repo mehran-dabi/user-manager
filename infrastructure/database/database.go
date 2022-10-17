@@ -5,8 +5,6 @@ import (
 	"database/sql"
 	_ "embed"
 	"fmt"
-	"os"
-	"path"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -28,25 +26,10 @@ type Database struct {
 }
 
 // NewDatabase example: ./tmp/
-func NewDatabase(dir string) (*Database, error) {
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			return nil, err
-		}
-	}
+func NewDatabase(dbUser, dbPassword, dbHost, dbPort, dbName, dbDriver string) (*Database, error) {
+	DBURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?multiStatements=true", dbUser, dbPassword, dbHost, dbPort, dbName)
 
-	storeFile := path.Join(dir, "store.db")
-
-	// create file if not exist
-	if _, err := os.Stat(storeFile); os.IsNotExist(err) {
-		f, err := os.Create(storeFile)
-		if err != nil {
-			return nil, err
-		}
-		_ = f.Close()
-	}
-
-	db, err := sql.Open("sqlite3", storeFile+"?cache=shared_sync=1&_cache_size=25000")
+	db, err := sql.Open(dbDriver, DBURL)
 	if err != nil {
 		return nil, err
 	}
