@@ -2,4 +2,11 @@ service:
   port: ":8080"
 
 database:
-  path: "./tmp/"
+  name: faceit
+  host: 127.0.0.1
+  port: 3306
+  user: user
+  pass: pass
+  driver: mysql
+  root_user: root
+  root_pass: root
