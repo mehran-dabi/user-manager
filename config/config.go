@@ -9,16 +9,23 @@ import (
 )
 
 type Configs struct {
-	Service ServiceConfigs
-	Store   StoreConfigs
+	Service  ServiceConfigs
+	Database DatabaseConfigs
 }
 
 type ServiceConfigs struct {
 	Port string
 }
 
-type StoreConfigs struct {
-	Path string
+type DatabaseConfigs struct {
+	Name         string `mapstructure:"name"`
+	Host         string `mapstructure:"host"`
+	Port         string `mapstructure:"port"`
+	User         string `mapstructure:"user"`
+	Pass         string `mapstructure:"pass"`
+	Driver       string `mapstructure:"driver"`
+	RootUser     string `mapstructure:"root_user"`
+	RootPassword string `mapstructure:"root_pass"`
 }
 
 func Init() *Configs {
