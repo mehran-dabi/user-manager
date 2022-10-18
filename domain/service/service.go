@@ -28,14 +28,20 @@ func NewUserService(repository repository.IUsersRepository) *UserService {
 
 func (u *UserService) Create(ctx context.Context, user *dto.User, password string) (*dto.User, error) {
 	// check for email and nickname uniqueness
-	_, err := u.repository.GetByEmail(ctx, user.Email)
+	foundUserEntity, err := u.repository.GetByEmail(ctx, user.Email)
 	if err != nil && !errors.Is(err, constants.ErrUserNotFound) {
 		return nil, err
 	}
+	if foundUserEntity != nil {
+		return nil, constants.ErrUserExists
+	}
 
-	_, err = u.repository.GetByNickName(ctx, user.NickName)
+	foundUserEntity, err = u.repository.GetByNickName(ctx, user.NickName)
 	if err != nil && !errors.Is(err, constants.ErrUserNotFound) {
 		return nil, err
+	}
+	if foundUserEntity != nil {
+		return nil, constants.ErrUserExists
 	}
 
 	userEntity := utils.UserEntityFromDTO(user)
