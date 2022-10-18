@@ -29,6 +29,27 @@ func QueryBuilder(filter *entity.Filter, tableName string, page, pageSize int64)
 	return query
 }
 
+func CountQueryBuilder(filter *entity.Filter, tableName string) string {
+	query := `SELECT count(*) as total FROM ` + tableName
+
+	var conditions []string
+	if filter.Country != "" {
+		conditions = append(conditions, fmt.Sprintf("country = \"%s\"", filter.Country))
+	}
+	if !filter.CreatedAt.IsZero() {
+		conditions = append(conditions, fmt.Sprintf("created_at = %s", filter.CreatedAt))
+	}
+	if !filter.UpdatedAt.IsZero() {
+		conditions = append(conditions, fmt.Sprintf("updated_at = %s", filter.UpdatedAt))
+	}
+
+	joinedConditions := strings.Join(conditions, " AND ")
+
+	query += " " + joinedConditions
+
+	return query
+}
+
 func UpdateQueryBuilder(user *entity.User, tableName string) string {
 	query := `UPDATE ` + tableName + `SET`
 	var updateFields []string
