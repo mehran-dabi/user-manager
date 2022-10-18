@@ -15,17 +15,19 @@ var schemaUp string
 //go:embed migration/schema.down.sql
 var schemaDown string
 
+// IDatabase - The interface for the database driver
 type IDatabase interface {
 	Ping() error
 	Migrate(cmd string) error
 	Close() error
 }
 
+// Database - The database driver struct
 type Database struct {
 	DB *sql.DB
 }
 
-// NewDatabase example: ./tmp/
+// NewDatabase - Creates a new connection to the database
 func NewDatabase(dbUser, dbPassword, dbHost, dbPort, dbName, dbDriver string) (*Database, error) {
 	DBURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?multiStatements=true", dbUser, dbPassword, dbHost, dbPort, dbName)
 
@@ -44,7 +46,8 @@ func NewDatabase(dbUser, dbPassword, dbHost, dbPort, dbName, dbDriver string) (*
 	}, nil
 }
 
-// Migrate does the migration of the tables
+// Migrate - Creates the tables if we pass `up` as the argument.
+// Removes the tables if we pass `down` as the argument.
 func (s *Database) Migrate(cmd string) error {
 	switch cmd {
 	case "up":
@@ -58,12 +61,12 @@ func (s *Database) Migrate(cmd string) error {
 	}
 }
 
-// Ping check database ping
+// Ping - Checks database health
 func (s *Database) Ping() error {
 	return s.DB.Ping()
 }
 
-// Close closes the connection to the database
+// Close - Closes the connection to the database
 func (s *Database) Close() error {
 	return s.DB.Close()
 }
