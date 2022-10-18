@@ -6,10 +6,11 @@ import (
 	"faceit/domain/user/dto"
 	"faceit/domain/user/entity"
 	mocks "faceit/mocks/domain/user/repository"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"testing"
 )
 
 type ServiceTestSuite struct {
