@@ -7,45 +7,41 @@ import (
 )
 
 func QueryBuilder(filter *entity.Filter, tableName string, page, pageSize int64) string {
-	query := `SELECT id, first_name, last_name, nick_name, email, country, created_at, updated_at FROM ` + tableName + ` WHERE`
+	query := `SELECT id, first_name, last_name, nick_name, email, country, created_at, updated_at FROM ` + tableName
 
 	var conditions []string
 	if filter.Country != "" {
 		conditions = append(conditions, fmt.Sprintf("country = \"%s\"", filter.Country))
 	}
-	if !filter.CreatedAt.IsZero() {
-		conditions = append(conditions, fmt.Sprintf("created_at = %s", filter.CreatedAt))
-	}
-	if !filter.UpdatedAt.IsZero() {
-		conditions = append(conditions, fmt.Sprintf("updated_at = %s", filter.UpdatedAt))
+	if filter.NickName != "" {
+		conditions = append(conditions, fmt.Sprintf("nick_name LIKE \"%%%s%%\"", filter.NickName))
 	}
 
 	joinedConditions := strings.Join(conditions, " AND ")
+	if joinedConditions != "" {
+		query += " WHERE " + joinedConditions
+	}
 
-	query += " " + joinedConditions
-
-	query += fmt.Sprintf(" LIMIT %d OFFSET %d", pageSize, page*pageSize)
+	query += fmt.Sprintf(" ORDER BY id LIMIT %d OFFSET %d", pageSize, (page-1)*pageSize)
 
 	return query
 }
 
 func CountQueryBuilder(filter *entity.Filter, tableName string) string {
-	query := `SELECT count(*) as total FROM ` + tableName + ` WHERE`
+	query := `SELECT count(*) as total FROM ` + tableName
 
 	var conditions []string
 	if filter.Country != "" {
 		conditions = append(conditions, fmt.Sprintf("country = \"%s\"", filter.Country))
 	}
-	if !filter.CreatedAt.IsZero() {
-		conditions = append(conditions, fmt.Sprintf("created_at = %s", filter.CreatedAt))
-	}
-	if !filter.UpdatedAt.IsZero() {
-		conditions = append(conditions, fmt.Sprintf("updated_at = %s", filter.UpdatedAt))
+	if filter.NickName != "" {
+		conditions = append(conditions, fmt.Sprintf("nick_name LIKE \"%%%s%%\"", filter.NickName))
 	}
 
 	joinedConditions := strings.Join(conditions, " AND ")
-
-	query += " " + joinedConditions
+	if joinedConditions != "" {
+		query += " WHERE " + joinedConditions
+	}
 
 	return query
 }

@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -158,32 +159,15 @@ func (u *UsersController) Remove(c *gin.Context) {
 
 // Get - Handler for getting users based on the provided criteria in the URL parameters
 func (u *UsersController) Get(c *gin.Context) {
-	var filter *dto.Filter
+	filter := &dto.Filter{}
 	country, found := c.GetQuery("country")
 	if found {
-		filter.Country = country
+		filter.Country = strings.ToUpper(country)
 	}
 
-	createdAt, found := c.GetQuery("created_at")
+	nickname, found := c.GetQuery("nick_name")
 	if found {
-		timeLayout := "2006-01-02 15:04:05"
-		parsedCreatedAt, err := time.Parse(timeLayout, createdAt)
-		if err != nil {
-			u.ginResponse(c, http.StatusBadRequest, err.Error())
-			return
-		}
-		filter.CreatedAt = parsedCreatedAt
-	}
-
-	updatedAt, found := c.GetQuery("created_at")
-	if found {
-		timeLayout := "2006-01-02 15:04:05"
-		parsedUpdatedAt, err := time.Parse(timeLayout, updatedAt)
-		if err != nil {
-			u.ginResponse(c, http.StatusBadRequest, err.Error())
-			return
-		}
-		filter.UpdatedAt = parsedUpdatedAt
+		filter.NickName = nickname
 	}
 
 	var request getRequest
@@ -197,13 +181,13 @@ func (u *UsersController) Get(c *gin.Context) {
 		u.ginResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	response := struct {
-		users []*dto.User
-		count uint64
-	}{
-		users: userDTOs,
-		count: count,
+	type getResponse struct {
+		Users []*dto.User `json:"users"`
+		Count uint64      `json:"count"`
+	}
+	response := getResponse{
+		Users: userDTOs,
+		Count: count,
 	}
 
 	u.ginResponse(c, http.StatusOK, response)

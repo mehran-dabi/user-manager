@@ -16,7 +16,6 @@ type User struct {
 }
 
 type Filter struct {
-	Country   string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Country  string
+	NickName string
 }

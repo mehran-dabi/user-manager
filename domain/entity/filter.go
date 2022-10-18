@@ -2,19 +2,16 @@ package entity
 
 import (
 	"faceit/domain/dto"
-	"time"
 )
 
 type Filter struct {
-	Country   string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Country  string
+	NickName string
 }
 
 func FilterEntityFromDTO(dto *dto.Filter) *Filter {
 	return &Filter{
-		Country:   dto.Country,
-		CreatedAt: dto.CreatedAt,
-		UpdatedAt: dto.UpdatedAt,
+		Country:  dto.Country,
+		NickName: dto.NickName,
 	}
 }

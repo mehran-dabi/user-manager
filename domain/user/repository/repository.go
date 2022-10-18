@@ -236,17 +236,21 @@ func (u *UsersRepository) Get(ctx context.Context, filter *entity.Filter, page, 
 func (u *UsersRepository) GetCount(ctx context.Context, filter *entity.Filter) (uint64, error) {
 	query := utils.CountQueryBuilder(filter, usersTableName)
 
-	results, err := u.db.QueryContext(ctx, query)
+	result, err := u.db.QueryContext(ctx, query)
 	if err != nil {
 		return 0, fmt.Errorf("failed to get total count of users: %w", err)
 	}
 
 	defer func(results *sql.Rows) {
 		_ = results.Close()
-	}(results)
+	}(result)
+
+	if !result.Next() {
+		return 0, constants.ErrUserNotFound
+	}
 
 	var count uint64
-	if err := results.Scan(&count); err != nil {
+	if err := result.Scan(&count); err != nil {
 		return 0, fmt.Errorf("failed to read record from database: %w", err)
 	}
 
