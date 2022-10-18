@@ -29,7 +29,7 @@ type Database struct {
 
 // NewDatabase - Creates a new connection to the database
 func NewDatabase(dbUser, dbPassword, dbHost, dbPort, dbName, dbDriver string) (*Database, error) {
-	DBURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?multiStatements=true", dbUser, dbPassword, dbHost, dbPort, dbName)
+	DBURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?multiStatements=true&parseTime=true", dbUser, dbPassword, dbHost, dbPort, dbName)
 
 	db, err := sql.Open(dbDriver, DBURL)
 	if err != nil {
