@@ -1,11 +1,13 @@
 package controller
 
 import (
+	"faceit/domain/dto"
 	"faceit/domain/service"
 	"faceit/infrastructure/database"
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -24,10 +26,12 @@ type UsersController struct {
 	store   database.IDatabase
 }
 
+// NewUserController - Creates a new user controller with dependency injection
 func NewUserController(service service.IUserService) *UsersController {
 	return &UsersController{service: service}
 }
 
+// Run - Starts the gin engine and sets up the http routes
 func (u *UsersController) Run(port string) *http.Server {
 	// init gin
 	gin.SetMode(gin.DebugMode)
@@ -80,23 +84,127 @@ func (u *UsersController) Run(port string) *http.Server {
 	return server
 }
 
+// Create - Handler to create a user with the given user information
 func (u *UsersController) Create(c *gin.Context) {
+	var request createRequest
+	if err := c.BindJSON(&request); err != nil {
+		u.ginResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
 
+	userDTO := &dto.User{
+		FirstName: request.FirstName,
+		LastName:  request.LastName,
+		NickName:  request.NickName,
+		Email:     request.Email,
+		Country:   request.Country,
+	}
+
+	createdUserDTO, err := u.service.Create(c.Request.Context(), userDTO, request.Password)
+	if err != nil {
+		u.ginResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	u.ginResponse(c, http.StatusOK, createdUserDTO)
 }
 
+// Update - Handler to update the given user
 func (u *UsersController) Update(c *gin.Context) {
+	var request updateRequest
+	if err := c.BindJSON(&request); err != nil {
+		u.ginResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
 
+	userDTO := &dto.User{
+		ID:        request.ID,
+		FirstName: request.FirstName,
+		LastName:  request.LastName,
+		NickName:  request.NickName,
+		Email:     request.Email,
+		Country:   request.Country,
+	}
+
+	if err := u.service.Update(c.Request.Context(), userDTO, request.Password); err != nil {
+		u.ginResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	u.ginResponse(c, http.StatusOK, nil)
 }
 
+// Remove - Handler to remove a user based on the provided user ID
 func (u *UsersController) Remove(c *gin.Context) {
+	ID := c.Param("id")
+	IDint64, err := strconv.ParseInt(ID, 10, 64)
+	if err != nil {
+		u.ginResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
 
+	if err := u.service.Remove(c.Request.Context(), IDint64); err != nil {
+		u.ginResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	u.ginResponse(c, http.StatusOK, nil)
 }
 
+// Get - Handler for getting users based on the provided criteria in the URL parameters
 func (u *UsersController) Get(c *gin.Context) {
+	var filter *dto.Filter
+	country, found := c.GetQuery("country")
+	if found {
+		filter.Country = country
+	}
 
+	createdAt, found := c.GetQuery("created_at")
+	if found {
+		timeLayout := "2006-01-02 15:04:05"
+		parsedCreatedAt, err := time.Parse(timeLayout, createdAt)
+		if err != nil {
+			u.ginResponse(c, http.StatusBadRequest, err.Error())
+			return
+		}
+		filter.CreatedAt = parsedCreatedAt
+	}
+
+	updatedAt, found := c.GetQuery("created_at")
+	if found {
+		timeLayout := "2006-01-02 15:04:05"
+		parsedUpdatedAt, err := time.Parse(timeLayout, updatedAt)
+		if err != nil {
+			u.ginResponse(c, http.StatusBadRequest, err.Error())
+			return
+		}
+		filter.UpdatedAt = parsedUpdatedAt
+	}
+
+	var request getRequest
+	if err := c.BindJSON(&request); err != nil {
+		u.ginResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	userDTOs, count, err := u.service.Get(c.Request.Context(), filter, request.Page, request.PageSize)
+	if err != nil {
+		u.ginResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	response := struct {
+		users []*dto.User
+		count int64
+	}{
+		users: userDTOs,
+		count: count,
+	}
+
+	u.ginResponse(c, http.StatusOK, response)
 }
 
-// HealthCheck checks database ping
+// HealthCheck - Checks database health
 func (u *UsersController) HealthCheck(c *gin.Context) {
 	health := map[string]interface{}{
 		"store": "up",
@@ -111,6 +219,7 @@ func (u *UsersController) HealthCheck(c *gin.Context) {
 	u.ginResponse(c, http.StatusOK, health)
 }
 
+// ginResponse - A simple helper function to prepare the response structure
 func (u *UsersController) ginResponse(c *gin.Context, status int, payload interface{}) {
 	type Response struct {
 		Status  int         `json:"status"`
