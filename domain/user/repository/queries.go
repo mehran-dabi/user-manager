@@ -11,5 +11,5 @@ const (
 
 	getUserByEmail = `SELECT id, first_name, last_name, nick_name, email, country, created_at, updated_at FROM ` + usersTableName + ` WHERE email = ?`
 
-	getUserByNickName = `SELECT id, first_name, last_name, nick_name, email, country, created_at, updated_at FROM ` + usersTableName + ` WHERE nickname = ?`
+	getUserByNickName = `SELECT id, first_name, last_name, nick_name, email, country, created_at, updated_at FROM ` + usersTableName + ` WHERE nick_name = ?`
 )
