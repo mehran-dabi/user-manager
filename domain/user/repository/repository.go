@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"faceit/domain/constants"
 	"faceit/domain/entity"
 	"faceit/domain/utils"
 	"fmt"
@@ -12,7 +13,11 @@ type IUsersRepository interface {
 	Create(ctx context.Context, user *entity.User) (*entity.User, error)
 	Update(ctx context.Context, user *entity.User) error
 	Remove(ctx context.Context, ID int64) error
-	Get(ctx context.Context, filter *entity.Filter, page, pageSize int64) ([]*entity.User, int64, error)
+	GetByID(ctx context.Context, ID int64) (*entity.User, error)
+	GetByEmail(ctx context.Context, email string) (*entity.User, error)
+	GetByNickName(ctx context.Context, nickName string) (*entity.User, error)
+	Get(ctx context.Context, filter *entity.Filter, page, pageSize int64) ([]*entity.User, error)
+	GetCount(ctx context.Context, filter *entity.Filter) (uint64, error)
 }
 
 type UsersRepository struct {
@@ -49,9 +54,10 @@ func (u *UsersRepository) Create(ctx context.Context, user *entity.User) (*entit
 
 // Update - updates the user with the given information
 func (u *UsersRepository) Update(ctx context.Context, user *entity.User) error {
+	query := utils.UpdateQueryBuilder(user, usersTableName)
 	_, err := u.db.ExecContext(
 		ctx,
-		updateUser,
+		query,
 		user.FirstName,
 		user.LastName,
 		user.NickName,
@@ -81,13 +87,96 @@ func (u *UsersRepository) Remove(ctx context.Context, ID int64) error {
 	return nil
 }
 
+// GetByID - gets the user from database with the given ID
+func (u *UsersRepository) GetByID(ctx context.Context, ID int64) (*entity.User, error) {
+	result, err := u.db.QueryContext(
+		ctx,
+		getUserByID,
+		ID,
+	)
+	if err != nil {
+		return nil, constants.ErrUserNotFound
+	}
+	user := &entity.User{}
+	if err := result.Scan(
+		&user.ID,
+		&user.FirstName,
+		&user.LastName,
+		&user.NickName,
+		&user.Email,
+		&user.Country,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	); err != nil {
+		return nil, fmt.Errorf("failed to read user from database: %w", err)
+	}
+
+	return user, nil
+}
+
+// GetByEmail - gets the user from database with the given email
+func (u *UsersRepository) GetByEmail(ctx context.Context, email string) (*entity.User, error) {
+	result, err := u.db.QueryContext(
+		ctx,
+		getUserByEmail,
+		email,
+	)
+	if err != nil {
+		return nil, constants.ErrUserNotFound
+	}
+
+	user := &entity.User{}
+	if err := result.Scan(
+		&user.ID,
+		&user.FirstName,
+		&user.LastName,
+		&user.NickName,
+		&user.Email,
+		&user.Country,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	); err != nil {
+		return nil, fmt.Errorf("failed to read user from database: %w", err)
+	}
+
+	return user, nil
+}
+
+// GetByNickName - gets the user from database with the given nick name
+func (u *UsersRepository) GetByNickName(ctx context.Context, nickName string) (*entity.User, error) {
+	result, err := u.db.QueryContext(
+		ctx,
+		getUserByNickName,
+		nickName,
+	)
+	if err != nil {
+		return nil, constants.ErrUserNotFound
+	}
+
+	user := &entity.User{}
+	if err := result.Scan(
+		&user.ID,
+		&user.FirstName,
+		&user.LastName,
+		&user.NickName,
+		&user.Email,
+		&user.Country,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	); err != nil {
+		return nil, fmt.Errorf("failed to read user from database: %w", err)
+	}
+
+	return user, nil
+}
+
 // Get - return the users with the provided criteria in the filter field and return the data with pagination and the total count of the results.
-func (u *UsersRepository) Get(ctx context.Context, filter *entity.Filter, page, pageSize int64) ([]*entity.User, int64, error) {
+func (u *UsersRepository) Get(ctx context.Context, filter *entity.Filter, page, pageSize int64) ([]*entity.User, error) {
 	query := utils.QueryBuilder(filter, usersTableName, page, pageSize)
 
 	results, err := u.db.QueryContext(ctx, query)
 	if err != nil {
-		return nil, 0, fmt.Errorf("failed to get users: %w", err)
+		return nil, fmt.Errorf("failed to get users: %w", err)
 	}
 
 	defer func(results *sql.Rows) {
@@ -95,7 +184,6 @@ func (u *UsersRepository) Get(ctx context.Context, filter *entity.Filter, page, 
 	}(results)
 
 	var users []*entity.User
-	var count int64
 	for results.Next() {
 		user := new(entity.User)
 		if err := results.Scan(
@@ -107,13 +195,33 @@ func (u *UsersRepository) Get(ctx context.Context, filter *entity.Filter, page, 
 			&user.Country,
 			&user.CreatedAt,
 			&user.UpdatedAt,
-			&count,
 		); err != nil {
-			return nil, 0, fmt.Errorf("failed to read records from database: %w", err)
+			return nil, fmt.Errorf("failed to read records from database: %w", err)
 		}
 
 		users = append(users, user)
 	}
 
-	return users, count, nil
+	return users, nil
+}
+
+// GetCount - gets the total count of users with the provided filter
+func (u *UsersRepository) GetCount(ctx context.Context, filter *entity.Filter) (uint64, error) {
+	query := utils.CountQueryBuilder(filter, usersTableName)
+
+	results, err := u.db.QueryContext(ctx, query)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get total count of users: %w", err)
+	}
+
+	defer func(results *sql.Rows) {
+		_ = results.Close()
+	}(results)
+
+	var count uint64
+	if err := results.Scan(&count); err != nil {
+		return 0, fmt.Errorf("failed to read record from database: %w", err)
+	}
+
+	return count, nil
 }

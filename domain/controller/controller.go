@@ -39,12 +39,15 @@ func (u *UsersController) Run(port string) *http.Server {
 
 	router.GET("/health", u.HealthCheck)
 
-	user := router.Group("/user")
+	v1 := router.Group("/v1")
 	{
-		user.POST("/create", u.Create)
-		user.POST("/update", u.Update)
-		user.DELETE("/:id", u.Remove)
-		user.POST("/get", u.Get)
+		user := v1.Group("/users")
+		{
+			user.POST("/create", u.Create)
+			user.POST("/update", u.Update)
+			user.DELETE("/:id", u.Remove)
+			user.POST("/get", u.Get)
+		}
 	}
 
 	// gin middleware config
@@ -106,6 +109,8 @@ func (u *UsersController) Create(c *gin.Context) {
 		return
 	}
 
+	createdUserDTO.CreatedAt = time.Now()
+	createdUserDTO.UpdatedAt = time.Now()
 	u.ginResponse(c, http.StatusOK, createdUserDTO)
 }
 
@@ -195,7 +200,7 @@ func (u *UsersController) Get(c *gin.Context) {
 
 	response := struct {
 		users []*dto.User
-		count int64
+		count uint64
 	}{
 		users: userDTOs,
 		count: count,
