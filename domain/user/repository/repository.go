@@ -68,13 +68,22 @@ func (u *UsersRepository) Update(ctx context.Context, user *entity.User) error {
 
 // Remove - removes the user with the given ID
 func (u *UsersRepository) Remove(ctx context.Context, ID int64) error {
-	_, err := u.db.ExecContext(
+	result, err := u.db.ExecContext(
 		ctx,
 		deleteUser,
 		ID,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to remove user: %w", err)
+	}
+
+	count, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to get number of rows affected: %w", err)
+	}
+
+	if count == 0 {
+		return fmt.Errorf("no users were deleted")
 	}
 
 	return nil
