@@ -31,10 +31,12 @@ func main() {
 		log.Fatalf("failed to initialize database: %s", err)
 	}
 
+	// check database health
 	if err := store.Ping(); err != nil {
 		log.Fatalf("failed to get database ping: %s", err)
 	}
 
+	// create tables if they don't exist
 	if err := store.Migrate("up"); err != nil {
 		log.Fatalf("failed to migrate the schemas: %s", err)
 	}
