@@ -54,22 +54,22 @@ func UpdateQueryBuilder(user *entity.User, tableName string) string {
 	query := `UPDATE ` + tableName + `SET `
 	var updateFields []string
 	if user.FirstName != "" {
-		updateFields = append(updateFields, fmt.Sprintf("first_name = %s", user.FirstName))
+		updateFields = append(updateFields, fmt.Sprintf("first_name = \"%s\"", user.FirstName))
 	}
 	if user.LastName != "" {
-		updateFields = append(updateFields, fmt.Sprintf("last_name = %s", user.LastName))
+		updateFields = append(updateFields, fmt.Sprintf("last_name = \"%s\"", user.LastName))
 	}
 	if user.NickName != "" {
-		updateFields = append(updateFields, fmt.Sprintf("nick_name = %s", user.NickName))
+		updateFields = append(updateFields, fmt.Sprintf("nick_name = \"%s\"", user.NickName))
 	}
 	if user.Email != "" {
-		updateFields = append(updateFields, fmt.Sprintf("email = %s", user.Email))
+		updateFields = append(updateFields, fmt.Sprintf("email = \"%s\"", user.Email))
 	}
 	if user.Country != "" {
-		updateFields = append(updateFields, fmt.Sprintf("country = %s", user.Country))
+		updateFields = append(updateFields, fmt.Sprintf("country = \"%s\"", user.Country))
 	}
 	if user.Password != "" {
-		updateFields = append(updateFields, fmt.Sprintf("password = %s", user.Password))
+		updateFields = append(updateFields, fmt.Sprintf("password = \"%s\"", user.Password))
 	}
 
 	joinedUpdateFields := strings.Join(updateFields, " , ")
