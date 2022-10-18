@@ -51,7 +51,7 @@ func CountQueryBuilder(filter *entity.Filter, tableName string) string {
 }
 
 func UpdateQueryBuilder(user *entity.User, tableName string) string {
-	query := `UPDATE ` + tableName + `SET`
+	query := `UPDATE ` + tableName + `SET `
 	var updateFields []string
 	if user.FirstName != "" {
 		updateFields = append(updateFields, fmt.Sprintf("first_name = %s", user.FirstName))
@@ -73,6 +73,6 @@ func UpdateQueryBuilder(user *entity.User, tableName string) string {
 	}
 
 	joinedUpdateFields := strings.Join(updateFields, " , ")
-	query += " " + joinedUpdateFields + `, updated_at = NOW(), ` + fmt.Sprintf("WHERE id = %d", user.ID)
+	query += " " + joinedUpdateFields + `, updated_at = NOW() ` + fmt.Sprintf("WHERE id = %d", user.ID)
 	return query
 }
