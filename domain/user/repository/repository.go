@@ -95,8 +95,17 @@ func (u *UsersRepository) GetByID(ctx context.Context, ID int64) (*entity.User, 
 		ID,
 	)
 	if err != nil {
+		return nil, fmt.Errorf("failed to query database: %w", err)
+	}
+
+	defer func(result *sql.Rows) {
+		_ = result.Close()
+	}(result)
+
+	if !result.Next() {
 		return nil, constants.ErrUserNotFound
 	}
+
 	user := &entity.User{}
 	if err := result.Scan(
 		&user.ID,
@@ -122,6 +131,14 @@ func (u *UsersRepository) GetByEmail(ctx context.Context, email string) (*entity
 		email,
 	)
 	if err != nil {
+		return nil, fmt.Errorf("failed to query database: %w", err)
+	}
+
+	defer func(result *sql.Rows) {
+		_ = result.Close()
+	}(result)
+
+	if !result.Next() {
 		return nil, constants.ErrUserNotFound
 	}
 
@@ -150,6 +167,14 @@ func (u *UsersRepository) GetByNickName(ctx context.Context, nickName string) (*
 		nickName,
 	)
 	if err != nil {
+		return nil, fmt.Errorf("failed to query database: %w", err)
+	}
+
+	defer func(result *sql.Rows) {
+		_ = result.Close()
+	}(result)
+
+	if !result.Next() {
 		return nil, constants.ErrUserNotFound
 	}
 
