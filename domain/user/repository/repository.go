@@ -58,13 +58,6 @@ func (u *UsersRepository) Update(ctx context.Context, user *entity.User) error {
 	_, err := u.db.ExecContext(
 		ctx,
 		query,
-		user.FirstName,
-		user.LastName,
-		user.NickName,
-		user.Password,
-		user.Email,
-		user.Country,
-		user.ID,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to update user: %w", err)

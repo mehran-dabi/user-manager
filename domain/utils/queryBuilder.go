@@ -51,7 +51,7 @@ func CountQueryBuilder(filter *entity.Filter, tableName string) string {
 }
 
 func UpdateQueryBuilder(user *entity.User, tableName string) string {
-	query := `UPDATE ` + tableName + `SET `
+	query := `UPDATE ` + tableName + ` SET `
 	var updateFields []string
 	if user.FirstName != "" {
 		updateFields = append(updateFields, fmt.Sprintf("first_name = \"%s\"", user.FirstName))
