@@ -1,12 +1,12 @@
 package utils
 
 import (
-	"faceit/domain/entity"
+	entity2 "faceit/domain/user/entity"
 	"fmt"
 	"strings"
 )
 
-func QueryBuilder(filter *entity.Filter, tableName string, page, pageSize int64) string {
+func QueryBuilder(filter *entity2.Filter, tableName string, page, pageSize int64) string {
 	query := `SELECT id, first_name, last_name, nick_name, email, country, created_at, updated_at FROM ` + tableName
 
 	var conditions []string
@@ -27,7 +27,7 @@ func QueryBuilder(filter *entity.Filter, tableName string, page, pageSize int64)
 	return query
 }
 
-func CountQueryBuilder(filter *entity.Filter, tableName string) string {
+func CountQueryBuilder(filter *entity2.Filter, tableName string) string {
 	query := `SELECT count(*) as total FROM ` + tableName
 
 	var conditions []string
@@ -46,8 +46,8 @@ func CountQueryBuilder(filter *entity.Filter, tableName string) string {
 	return query
 }
 
-func UpdateQueryBuilder(user *entity.User, tableName string) string {
-	query := `UPDATE ` + tableName + ` SET `
+func UpdateQueryBuilder(user *entity2.User, tableName string) string {
+	query := `UPDATE ` + tableName + ` SET`
 	var updateFields []string
 	if user.FirstName != "" {
 		updateFields = append(updateFields, fmt.Sprintf("first_name = \"%s\"", user.FirstName))
@@ -69,6 +69,6 @@ func UpdateQueryBuilder(user *entity.User, tableName string) string {
 	}
 
 	joinedUpdateFields := strings.Join(updateFields, " , ")
-	query += " " + joinedUpdateFields + `, updated_at = NOW() ` + fmt.Sprintf("WHERE id = %d", user.ID)
+	query += " " + joinedUpdateFields + ` , updated_at = NOW() ` + fmt.Sprintf("WHERE id = %d", user.ID)
 	return query
 }

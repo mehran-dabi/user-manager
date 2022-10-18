@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"faceit/domain/dto"
-	"faceit/domain/service"
+	"faceit/domain/user/dto"
+	"faceit/domain/user/service"
 	"faceit/infrastructure/database"
 	"fmt"
 	"log"

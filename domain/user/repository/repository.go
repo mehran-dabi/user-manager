@@ -4,20 +4,20 @@ import (
 	"context"
 	"database/sql"
 	"faceit/domain/constants"
-	"faceit/domain/entity"
-	"faceit/domain/utils"
+	entity2 "faceit/domain/user/entity"
+	"faceit/domain/user/utils"
 	"fmt"
 )
 
 type IUsersRepository interface {
-	Create(ctx context.Context, user *entity.User) (*entity.User, error)
-	Update(ctx context.Context, user *entity.User) error
+	Create(ctx context.Context, user *entity2.User) (*entity2.User, error)
+	Update(ctx context.Context, user *entity2.User) error
 	Remove(ctx context.Context, ID int64) error
-	GetByID(ctx context.Context, ID int64) (*entity.User, error)
-	GetByEmail(ctx context.Context, email string) (*entity.User, error)
-	GetByNickName(ctx context.Context, nickName string) (*entity.User, error)
-	Get(ctx context.Context, filter *entity.Filter, page, pageSize int64) ([]*entity.User, error)
-	GetCount(ctx context.Context, filter *entity.Filter) (uint64, error)
+	GetByID(ctx context.Context, ID int64) (*entity2.User, error)
+	GetByEmail(ctx context.Context, email string) (*entity2.User, error)
+	GetByNickName(ctx context.Context, nickName string) (*entity2.User, error)
+	Get(ctx context.Context, filter *entity2.Filter, page, pageSize int64) ([]*entity2.User, error)
+	GetCount(ctx context.Context, filter *entity2.Filter) (uint64, error)
 }
 
 type UsersRepository struct {
@@ -29,7 +29,7 @@ func NewUserRepository(db *sql.DB) *UsersRepository {
 }
 
 // Create - creates a user with the given information
-func (u *UsersRepository) Create(ctx context.Context, user *entity.User) (*entity.User, error) {
+func (u *UsersRepository) Create(ctx context.Context, user *entity2.User) (*entity2.User, error) {
 	result, err := u.db.ExecContext(
 		ctx,
 		createUser,
@@ -53,7 +53,7 @@ func (u *UsersRepository) Create(ctx context.Context, user *entity.User) (*entit
 }
 
 // Update - updates the user with the given information
-func (u *UsersRepository) Update(ctx context.Context, user *entity.User) error {
+func (u *UsersRepository) Update(ctx context.Context, user *entity2.User) error {
 	query := utils.UpdateQueryBuilder(user, usersTableName)
 	_, err := u.db.ExecContext(
 		ctx,
@@ -90,7 +90,7 @@ func (u *UsersRepository) Remove(ctx context.Context, ID int64) error {
 }
 
 // GetByID - gets the user from database with the given ID
-func (u *UsersRepository) GetByID(ctx context.Context, ID int64) (*entity.User, error) {
+func (u *UsersRepository) GetByID(ctx context.Context, ID int64) (*entity2.User, error) {
 	result, err := u.db.QueryContext(
 		ctx,
 		getUserByID,
@@ -108,7 +108,7 @@ func (u *UsersRepository) GetByID(ctx context.Context, ID int64) (*entity.User, 
 		return nil, constants.ErrUserNotFound
 	}
 
-	user := &entity.User{}
+	user := &entity2.User{}
 	if err := result.Scan(
 		&user.ID,
 		&user.FirstName,
@@ -126,7 +126,7 @@ func (u *UsersRepository) GetByID(ctx context.Context, ID int64) (*entity.User, 
 }
 
 // GetByEmail - gets the user from database with the given email
-func (u *UsersRepository) GetByEmail(ctx context.Context, email string) (*entity.User, error) {
+func (u *UsersRepository) GetByEmail(ctx context.Context, email string) (*entity2.User, error) {
 	result, err := u.db.QueryContext(
 		ctx,
 		getUserByEmail,
@@ -144,7 +144,7 @@ func (u *UsersRepository) GetByEmail(ctx context.Context, email string) (*entity
 		return nil, constants.ErrUserNotFound
 	}
 
-	user := &entity.User{}
+	user := &entity2.User{}
 	if err := result.Scan(
 		&user.ID,
 		&user.FirstName,
@@ -162,7 +162,7 @@ func (u *UsersRepository) GetByEmail(ctx context.Context, email string) (*entity
 }
 
 // GetByNickName - gets the user from database with the given nick name
-func (u *UsersRepository) GetByNickName(ctx context.Context, nickName string) (*entity.User, error) {
+func (u *UsersRepository) GetByNickName(ctx context.Context, nickName string) (*entity2.User, error) {
 	result, err := u.db.QueryContext(
 		ctx,
 		getUserByNickName,
@@ -180,7 +180,7 @@ func (u *UsersRepository) GetByNickName(ctx context.Context, nickName string) (*
 		return nil, constants.ErrUserNotFound
 	}
 
-	user := &entity.User{}
+	user := &entity2.User{}
 	if err := result.Scan(
 		&user.ID,
 		&user.FirstName,
@@ -198,7 +198,7 @@ func (u *UsersRepository) GetByNickName(ctx context.Context, nickName string) (*
 }
 
 // Get - return the users with the provided criteria in the filter field and return the data with pagination and the total count of the results.
-func (u *UsersRepository) Get(ctx context.Context, filter *entity.Filter, page, pageSize int64) ([]*entity.User, error) {
+func (u *UsersRepository) Get(ctx context.Context, filter *entity2.Filter, page, pageSize int64) ([]*entity2.User, error) {
 	query := utils.QueryBuilder(filter, usersTableName, page, pageSize)
 
 	results, err := u.db.QueryContext(ctx, query)
@@ -210,9 +210,9 @@ func (u *UsersRepository) Get(ctx context.Context, filter *entity.Filter, page, 
 		_ = results.Close()
 	}(results)
 
-	var users []*entity.User
+	var users []*entity2.User
 	for results.Next() {
-		user := new(entity.User)
+		user := new(entity2.User)
 		if err := results.Scan(
 			&user.ID,
 			&user.FirstName,
@@ -233,7 +233,7 @@ func (u *UsersRepository) Get(ctx context.Context, filter *entity.Filter, page, 
 }
 
 // GetCount - gets the total count of users with the provided filter
-func (u *UsersRepository) GetCount(ctx context.Context, filter *entity.Filter) (uint64, error) {
+func (u *UsersRepository) GetCount(ctx context.Context, filter *entity2.Filter) (uint64, error) {
 	query := utils.CountQueryBuilder(filter, usersTableName)
 
 	result, err := u.db.QueryContext(ctx, query)

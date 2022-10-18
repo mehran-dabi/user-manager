@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"faceit/domain/dto"
+	"faceit/domain/user/dto"
 )
 
 type Filter struct {

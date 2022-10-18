@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"faceit/domain/dto"
-	"faceit/domain/entity"
+	"faceit/domain/user/dto"
+	"faceit/domain/user/entity"
 )
 
 func UserDTOFromEntity(entity *entity.User) *dto.User {

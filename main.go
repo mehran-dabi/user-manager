@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"faceit/config"
-	"faceit/domain/controller"
-	"faceit/domain/service"
+	"faceit/domain/user/controller"
 	"faceit/domain/user/repository"
+	"faceit/domain/user/service"
 	"faceit/infrastructure/database"
 	"log"
 	"os"

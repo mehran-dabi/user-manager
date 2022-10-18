@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"faceit/domain/constants"
-	"faceit/domain/dto"
-	"faceit/domain/entity"
+	"faceit/domain/user/dto"
+	"faceit/domain/user/entity"
 	"faceit/domain/user/repository"
-	"faceit/domain/utils"
+	"faceit/domain/user/utils"
 	"strings"
 )
 
