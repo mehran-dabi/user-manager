@@ -7,7 +7,7 @@ import (
 )
 
 func QueryBuilder(filter *entity.Filter, tableName string, page, pageSize int64) string {
-	query := `SELECT id, first_name, last_name, nick_name, email, country, created_at, updated_at FROM ` + tableName
+	query := `SELECT id, first_name, last_name, nick_name, email, country, created_at, updated_at FROM ` + tableName + ` WHERE`
 
 	var conditions []string
 	if filter.Country != "" {
@@ -30,7 +30,7 @@ func QueryBuilder(filter *entity.Filter, tableName string, page, pageSize int64)
 }
 
 func CountQueryBuilder(filter *entity.Filter, tableName string) string {
-	query := `SELECT count(*) as total FROM ` + tableName
+	query := `SELECT count(*) as total FROM ` + tableName + ` WHERE`
 
 	var conditions []string
 	if filter.Country != "" {
