@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	_ "embed"
 	"fmt"
+	"log"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -24,11 +25,12 @@ type IDatabase interface {
 
 // Database - The database driver struct
 type Database struct {
-	DB *sql.DB
+	db *sql.DB
 }
 
 // NewDatabase - Creates a new connection to the database
 func NewDatabase(dbUser, dbPassword, dbHost, dbPort, dbName, dbDriver string) (*Database, error) {
+	log.Println("Starting the connection to the database...")
 	DBURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?multiStatements=true&parseTime=true", dbUser, dbPassword, dbHost, dbPort, dbName)
 
 	db, err := sql.Open(dbDriver, DBURL)
@@ -41,8 +43,9 @@ func NewDatabase(dbUser, dbPassword, dbHost, dbPort, dbName, dbDriver string) (*
 		return nil, err
 	}
 
+	log.Println("Connected to the database")
 	return &Database{
-		DB: db,
+		db: db,
 	}, nil
 }
 
@@ -51,10 +54,10 @@ func NewDatabase(dbUser, dbPassword, dbHost, dbPort, dbName, dbDriver string) (*
 func (s *Database) Migrate(cmd string) error {
 	switch cmd {
 	case "up":
-		_, err := s.DB.ExecContext(context.Background(), schemaUp)
+		_, err := s.db.ExecContext(context.Background(), schemaUp)
 		return err
 	case "down":
-		_, err := s.DB.ExecContext(context.Background(), schemaDown)
+		_, err := s.db.ExecContext(context.Background(), schemaDown)
 		return err
 	default:
 		return fmt.Errorf("unknown command")
@@ -63,10 +66,14 @@ func (s *Database) Migrate(cmd string) error {
 
 // Ping - Checks database health
 func (s *Database) Ping() error {
-	return s.DB.Ping()
+	return s.db.Ping()
 }
 
 // Close - Closes the connection to the database
 func (s *Database) Close() error {
-	return s.DB.Close()
+	return s.db.Close()
+}
+
+func (s *Database) DB() *sql.DB {
+	return s.db
 }

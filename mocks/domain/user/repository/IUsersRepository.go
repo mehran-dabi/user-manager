@@ -150,6 +150,20 @@ func (_m *IUsersRepository) GetCount(ctx context.Context, filter *entity.Filter)
 	return r0, r1
 }
 
+// PublishUserChangeEvent provides a mock function with given fields: userID
+func (_m *IUsersRepository) PublishUserChangeEvent(userID int64) error {
+	ret := _m.Called(userID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int64) error); ok {
+		r0 = rf(userID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Remove provides a mock function with given fields: ctx, ID
 func (_m *IUsersRepository) Remove(ctx context.Context, ID int64) error {
 	ret := _m.Called(ctx, ID)

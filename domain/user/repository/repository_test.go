@@ -4,19 +4,23 @@ import (
 	"context"
 	"database/sql"
 	"faceit/domain/user/entity"
-	mocks "faceit/mocks/infrastructure/database"
+	databaseMocks "faceit/mocks/infrastructure/database"
+	redisMocks "faceit/mocks/infrastructure/redis"
 	"testing"
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/alicebob/miniredis/v2"
+	"github.com/go-redis/redis"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
 type RepositoryTestSuite struct {
 	suite.Suite
-	db   *sql.DB
-	mock sqlmock.Sqlmock
+	db    *sql.DB
+	mock  sqlmock.Sqlmock
+	redis *miniredis.Miniredis
 }
 
 func (r *RepositoryTestSuite) TestCreate() {
@@ -48,8 +52,12 @@ func (r *RepositoryTestSuite) TestCreate() {
 		},
 	}
 
-	r.db, r.mock = mocks.NewDBMock()
-	userRepository := NewUserRepository(r.db)
+	r.db, r.mock = databaseMocks.NewDBMock()
+	r.redis = redisMocks.NewRedisMock()
+	redisClient := redis.NewUniversalClient(&redis.UniversalOptions{
+		Addrs: []string{r.redis.Addr()},
+	})
+	userRepository := NewUserRepository(r.db, redisClient)
 
 	for _, tc := range testCases {
 		r.mock.ExpectExec("INSERT INTO").
@@ -82,8 +90,12 @@ func (r *RepositoryTestSuite) TestUpdate() {
 		},
 	}
 
-	r.db, r.mock = mocks.NewDBMock()
-	userRepository := NewUserRepository(r.db)
+	r.db, r.mock = databaseMocks.NewDBMock()
+	r.redis = redisMocks.NewRedisMock()
+	redisClient := redis.NewUniversalClient(&redis.UniversalOptions{
+		Addrs: []string{r.redis.Addr()},
+	})
+	userRepository := NewUserRepository(r.db, redisClient)
 
 	for _, tc := range testCases {
 		r.mock.ExpectExec("UPDATE users").
@@ -106,8 +118,12 @@ func (r *RepositoryTestSuite) TestRemove() {
 		},
 	}
 
-	r.db, r.mock = mocks.NewDBMock()
-	userRepository := NewUserRepository(r.db)
+	r.db, r.mock = databaseMocks.NewDBMock()
+	r.redis = redisMocks.NewRedisMock()
+	redisClient := redis.NewUniversalClient(&redis.UniversalOptions{
+		Addrs: []string{r.redis.Addr()},
+	})
+	userRepository := NewUserRepository(r.db, redisClient)
 
 	for _, tc := range testCases {
 		r.mock.ExpectExec("DELETE FROM users").
@@ -141,8 +157,12 @@ func (r *RepositoryTestSuite) TestGetByID() {
 		},
 	}
 
-	r.db, r.mock = mocks.NewDBMock()
-	userRepository := NewUserRepository(r.db)
+	r.db, r.mock = databaseMocks.NewDBMock()
+	r.redis = redisMocks.NewRedisMock()
+	redisClient := redis.NewUniversalClient(&redis.UniversalOptions{
+		Addrs: []string{r.redis.Addr()},
+	})
+	userRepository := NewUserRepository(r.db, redisClient)
 
 	for _, tc := range testCases {
 		rows := r.mock.NewRows([]string{"id", "first_name", "last_name", "nick_name", "email", "country", "created_at", "updated_at"}).
@@ -190,8 +210,12 @@ func (r *RepositoryTestSuite) TestGetByNickName() {
 		},
 	}
 
-	r.db, r.mock = mocks.NewDBMock()
-	userRepository := NewUserRepository(r.db)
+	r.db, r.mock = databaseMocks.NewDBMock()
+	r.redis = redisMocks.NewRedisMock()
+	redisClient := redis.NewUniversalClient(&redis.UniversalOptions{
+		Addrs: []string{r.redis.Addr()},
+	})
+	userRepository := NewUserRepository(r.db, redisClient)
 
 	for _, tc := range testCases {
 		rows := r.mock.NewRows([]string{"id", "first_name", "last_name", "nick_name", "email", "country", "created_at", "updated_at"}).
@@ -239,8 +263,12 @@ func (r *RepositoryTestSuite) TestGetByEmail() {
 		},
 	}
 
-	r.db, r.mock = mocks.NewDBMock()
-	userRepository := NewUserRepository(r.db)
+	r.db, r.mock = databaseMocks.NewDBMock()
+	r.redis = redisMocks.NewRedisMock()
+	redisClient := redis.NewUniversalClient(&redis.UniversalOptions{
+		Addrs: []string{r.redis.Addr()},
+	})
+	userRepository := NewUserRepository(r.db, redisClient)
 
 	for _, tc := range testCases {
 		rows := r.mock.NewRows([]string{"id", "first_name", "last_name", "nick_name", "email", "country", "created_at", "updated_at"}).
@@ -296,8 +324,12 @@ func (r *RepositoryTestSuite) TestGet() {
 		},
 	}
 
-	r.db, r.mock = mocks.NewDBMock()
-	userRepository := NewUserRepository(r.db)
+	r.db, r.mock = databaseMocks.NewDBMock()
+	r.redis = redisMocks.NewRedisMock()
+	redisClient := redis.NewUniversalClient(&redis.UniversalOptions{
+		Addrs: []string{r.redis.Addr()},
+	})
+	userRepository := NewUserRepository(r.db, redisClient)
 
 	for _, tc := range testCases {
 
@@ -340,8 +372,12 @@ func (r *RepositoryTestSuite) TestGetCount() {
 		},
 	}
 
-	r.db, r.mock = mocks.NewDBMock()
-	userRepository := NewUserRepository(r.db)
+	r.db, r.mock = databaseMocks.NewDBMock()
+	r.redis = redisMocks.NewRedisMock()
+	redisClient := redis.NewUniversalClient(&redis.UniversalOptions{
+		Addrs: []string{r.redis.Addr()},
+	})
+	userRepository := NewUserRepository(r.db, redisClient)
 
 	for _, tc := range testCases {
 
@@ -353,6 +389,27 @@ func (r *RepositoryTestSuite) TestGetCount() {
 		assert.Equal(r.T(), tc.expectedError, err)
 		assert.Equal(r.T(), tc.expectedCount, count)
 	}
+}
+
+func (r *RepositoryTestSuite) TestPublishUserChangeEvent() {
+	testCases := []struct {
+		ID int64
+	}{
+		{ID: 1},
+		{ID: 2},
+	}
+	r.db, r.mock = databaseMocks.NewDBMock()
+	r.redis = redisMocks.NewRedisMock()
+	redisClient := redis.NewUniversalClient(&redis.UniversalOptions{
+		Addrs: []string{r.redis.Addr()},
+	})
+	userRepository := NewUserRepository(r.db, redisClient)
+
+	for _, tc := range testCases {
+		err := userRepository.PublishUserChangeEvent(tc.ID)
+		assert.Nil(r.T(), err)
+	}
+
 }
 
 func TestRepositoryTestSuite(t *testing.T) {

@@ -7,6 +7,8 @@ import (
 	"faceit/domain/user/entity"
 	"faceit/domain/user/utils"
 	"fmt"
+
+	"github.com/go-redis/redis"
 )
 
 type IUsersRepository interface {
@@ -18,14 +20,16 @@ type IUsersRepository interface {
 	GetByNickName(ctx context.Context, nickName string) (*entity.User, error)
 	Get(ctx context.Context, filter *entity.Filter, page, pageSize int64) ([]*entity.User, error)
 	GetCount(ctx context.Context, filter *entity.Filter) (uint64, error)
+	PublishUserChangeEvent(userID int64) error
 }
 
 type UsersRepository struct {
-	db *sql.DB
+	db    *sql.DB
+	redis redis.UniversalClient
 }
 
-func NewUserRepository(db *sql.DB) *UsersRepository {
-	return &UsersRepository{db: db}
+func NewUserRepository(db *sql.DB, redis redis.UniversalClient) *UsersRepository {
+	return &UsersRepository{db: db, redis: redis}
 }
 
 // Create - creates a user with the given information
@@ -63,7 +67,11 @@ func (u *UsersRepository) Update(ctx context.Context, user *entity.User) error {
 		return fmt.Errorf("failed to update user: %w", err)
 	}
 
-	return err
+	if err := u.PublishUserChangeEvent(user.ID); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Remove - removes the user with the given ID
@@ -255,4 +263,13 @@ func (u *UsersRepository) GetCount(ctx context.Context, filter *entity.Filter) (
 	}
 
 	return count, nil
+}
+
+// PublishUserChangeEvent - This function is used to store the user change event in the redis so other services can be notified of the change.
+func (u *UsersRepository) PublishUserChangeEvent(userID int64) error {
+	_, err := u.redis.RPush(UserChangesRedisKey, userID).Result()
+	if err != nil {
+		return fmt.Errorf("failed to push event to redis: %w", err)
+	}
+	return nil
 }

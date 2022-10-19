@@ -7,6 +7,7 @@ import (
 	"faceit/domain/user/repository"
 	"faceit/domain/user/service"
 	"faceit/infrastructure/database"
+	"faceit/infrastructure/redis"
 	"log"
 	"os"
 	"os/signal"
@@ -41,7 +42,18 @@ func main() {
 		log.Fatalf("failed to migrate the schemas: %s", err)
 	}
 
-	usersRepo := repository.NewUserRepository(store.DB)
+	redisConn, err := redis.NewRedis(
+		conf.Redis.DSN,
+		conf.Redis.InternalPoolTimeout,
+		conf.Redis.IdleTimeout,
+		conf.Redis.ReadTimeout,
+		conf.Redis.WriteTimeout,
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	usersRepo := repository.NewUserRepository(store.DB(), redisConn.Conn())
 	usersService := service.NewUserService(usersRepo)
 	usersController := controller.NewUserController(usersService)
 

@@ -11,6 +11,7 @@ import (
 type Configs struct {
 	Service  ServiceConfigs
 	Database DatabaseConfigs
+	Redis    RedisConfigs
 }
 
 type ServiceConfigs struct {
@@ -26,6 +27,14 @@ type DatabaseConfigs struct {
 	Driver       string `mapstructure:"driver"`
 	RootUser     string `mapstructure:"root_user"`
 	RootPassword string `mapstructure:"root_pass"`
+}
+
+type RedisConfigs struct {
+	DSN                 []string `mapstructure:"dsn"`
+	InternalPoolTimeout int64    `mapstructure:"pool_timeout_in_seconds"`
+	IdleTimeout         int64    `mapstructure:"idle_timeout_in_seconds"`
+	ReadTimeout         int64    `mapstructure:"read_timeout_in_seconds"`
+	WriteTimeout        int64    `mapstructure:"write_timeout_in_seconds"`
 }
 
 func Init() *Configs {

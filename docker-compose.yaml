@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   mysql:
-    image: mysql
+    image: mysql:latest
     platform: linux/x86_64
     ports:
       - '3306:3306'
@@ -13,3 +13,15 @@ services:
       - MYSQL_USER=user
       - MYSQL_PASSWORD=pass
       - MYSQL_DATABASE=faceit
+  cache:
+    image: redis:latest
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - cache:/data
+
+volumes:
+  cache:
+    driver: local
