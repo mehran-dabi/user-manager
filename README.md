@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS users (
 ## How to Run
 
 First we have to get the database up and running. So we use the docker-compose file provided.
-```bash
+```shell
 make docker.up
 ```
 
@@ -39,15 +39,15 @@ This will create a local mysql database on port `3306`.
 You don't need to worry about the tables. After running the program the migrations are done automatically while initializing the database connection.
 
 Then we get to run the main program.
-```bash
-go run main.go
+```shell
+make run
 ```
 
 This will start a http server on port `:8080`
 
 ## Test Coverage
 By running the following command you can run all the tests in the project:
-```bash
+```shell
 make test
 ```
 
