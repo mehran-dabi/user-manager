@@ -17,3 +17,9 @@ check: format format-check ## Linting and static analysis
 		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.50.0; \
 	fi
 	@./bin/golangci-lint run --timeout 180s
+
+docker.up:
+	docker-compose -f docker-compose.yaml up -d
+
+test:
+	go test -cover ./...
