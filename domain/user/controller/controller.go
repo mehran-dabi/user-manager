@@ -28,8 +28,8 @@ type UsersController struct {
 }
 
 // NewUserController - Creates a new user controller with dependency injection
-func NewUserController(service service.IUserService) *UsersController {
-	return &UsersController{service: service}
+func NewUserController(service service.IUserService, store database.IDatabase) *UsersController {
+	return &UsersController{service: service, store: store}
 }
 
 // Run - Starts the gin engine and sets up the http routes

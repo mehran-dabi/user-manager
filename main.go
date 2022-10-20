@@ -55,7 +55,7 @@ func main() {
 
 	usersRepo := repository.NewUserRepository(store.DB(), redisConn.Conn())
 	usersService := service.NewUserService(usersRepo)
-	usersController := controller.NewUserController(usersService)
+	usersController := controller.NewUserController(usersService, store)
 
 	server := usersController.Run(conf.Service.Port)
 
