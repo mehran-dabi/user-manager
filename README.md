@@ -1,4 +1,4 @@
-# FACE IT Coding Challenge
+# User Manager
 
 This is a project to handle CRUD for users.
 
